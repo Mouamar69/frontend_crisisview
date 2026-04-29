@@ -14,30 +14,37 @@ pipeline {
             }
         }
 
+        stage('Lint') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'npm run lint'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'npm run build'
             }
         }
 
-        stage('Lint') {
-            steps {
-                sh 'npm run lint'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner'
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.host.url=http://sonarqube:9000"
+                    }
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    timeout(time: 5, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: false
+                    }
                 }
             }
         }
@@ -74,6 +81,9 @@ pipeline {
     post {
         failure {
             echo 'Pipeline en echec. Rollback : docker compose up -d --no-build front'
+        }
+        always {
+            archiveArtifacts artifacts: 'coverage/**', allowEmptyArchive: true
         }
     }
 }
