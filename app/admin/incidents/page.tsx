@@ -16,15 +16,20 @@ export default function IncidentAdmin() {
   const [form, setForm] = useState({ name: "", latitude: 0, longitude: 0 });
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const fetchIncidents = async () => {
+  useEffect(() => {
+    const loadIncidents = async () => {
+      const res = await fetch(API);
+      const data = await res.json();
+      setIncidents(data);
+    };
+    loadIncidents();
+  }, []);
+
+  const refreshIncidents = async () => {
     const res = await fetch(API);
     const data = await res.json();
     setIncidents(data);
   };
-
-  useEffect(() => {
-    fetchIncidents();
-  }, []);
 
   const handleSubmit = async () => {
     if (editingId) {
@@ -43,12 +48,12 @@ export default function IncidentAdmin() {
 
     setForm({ name: "", latitude: 0, longitude: 0 });
     setEditingId(null);
-    fetchIncidents();
+    await refreshIncidents();
   };
 
   const handleDelete = async (id: number) => {
     await fetch(`${API}/${id}`, { method: "DELETE" });
-    fetchIncidents();
+    await refreshIncidents();
   };
 
   const handleEdit = (p: Incident) => {

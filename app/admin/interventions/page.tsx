@@ -36,8 +36,22 @@ export default function InterventionsAdmin() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // ---------------- FETCH ----------------
-  const fetchAll = async () => {
+  useEffect(() => {
+    const loadAll = async () => {
+      const [r, u, p] = await Promise.all([
+        fetch(API_INT).then((res) => res.json()),
+        fetch(API_TECHNICIENS).then((res) => res.json()),
+        fetch(API_INCIDENTS).then((res) => res.json()),
+      ]);
+
+      setInterventions(r);
+      setTechniciens(u);
+      setIncidents(p);
+    };
+    loadAll();
+  }, []);
+
+  const refreshAll = async () => {
     const [r, u, p] = await Promise.all([
       fetch(API_INT).then((res) => res.json()),
       fetch(API_TECHNICIENS).then((res) => res.json()),
@@ -48,10 +62,6 @@ export default function InterventionsAdmin() {
     setTechniciens(u);
     setIncidents(p);
   };
-
-  useEffect(() => {
-    fetchAll();
-  }, []);
 
   // ---------------- CREATE / UPDATE ----------------
   const handleSubmit = async () => {
@@ -73,13 +83,13 @@ export default function InterventionsAdmin() {
 
     setForm({ id_incident: 0, id_technicien: 0 });
     setEditingId(null);
-    fetchAll();
+    await refreshAll();
   };
 
   // ---------------- DELETE ----------------
   const handleDelete = async (id: number) => {
     await fetch(`${API_INT}/${id}`, { method: "DELETE" });
-    fetchAll();
+    await refreshAll();
   };
 
   // ---------------- EDIT ----------------

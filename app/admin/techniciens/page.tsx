@@ -22,15 +22,13 @@ export default function TechniciensAdmin() {
   });
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // ---------------- FETCH ----------------
-  const fetchTechniciens = async () => {
-    const res = await fetch(API);
-    const data = await res.json();
-    setTechniciens(data);
-  };
-
   useEffect(() => {
-    fetchTechniciens();
+    const loadTechniciens = async () => {
+      const res = await fetch(API);
+      const data = await res.json();
+      setTechniciens(data);
+    };
+    loadTechniciens();
   }, []);
 
   // ---------------- CREATE / UPDATE ----------------
@@ -61,7 +59,7 @@ export default function TechniciensAdmin() {
   // ---------------- DELETE ----------------
   const handleDelete = async (id: number) => {
     await fetch(`${API}/${id}`, { method: "DELETE" });
-    fetchTechniciens();
+    await refreshTechniciens();
   };
 
   // ---------------- EDIT ----------------
