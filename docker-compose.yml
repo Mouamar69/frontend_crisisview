@@ -1,0 +1,14 @@
+services:
+  front:
+    image: ${DOCKER_USER}/crisisview-front:latest
+    container_name: crisisview-front
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - devops
+
+networks:
+  devops:
+    external: true
+    name: devops
