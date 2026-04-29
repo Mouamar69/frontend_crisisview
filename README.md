@@ -41,6 +41,16 @@ npm install
 npm run dev
 ```
 
+4. Build the application:
+```bash
+npm run build
+```
+
+5. Run the production server:
+```bash
+npm start
+```
+
 The application will be available at [http://localhost:3000](http://localhost:3000) (or the next available port).
 
 ---
